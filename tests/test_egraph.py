@@ -1,0 +1,96 @@
+from egraph import Egraph, Node, Var, App
+
+class TestHashCons:
+    def test_hash_cons_basic(self) -> None:
+        egraph = Egraph()
+
+        a = Node("a")
+        a_id1 = egraph.add(a)
+        a_id2 = egraph.add(a)
+
+        assert a_id1 == a_id2
+
+        b = Node("b")
+        b_id = egraph.add(b)
+
+        assert a_id1 != b_id 
+
+    def test_congruence_closure(self) -> None:
+        egraph = Egraph()
+
+        a = Node("a")
+        b = Node("b")
+
+        a_id = egraph.add(a)
+        b_id = egraph.add(b)
+
+        f_a = Node("f", (a_id,))
+        f_b = Node("f", (b_id,))
+
+        f_a_id = egraph.add(f_a)
+        f_b_id = egraph.add(f_b)
+
+        egraph.union(a_id, b_id)
+        egraph.rebuild()
+
+        assert egraph.are_equiv(f_a_id, f_b_id)
+
+    def test_instantiate(self) -> None:
+        egraph = Egraph()
+
+        a = Node("a")
+        a_id = egraph.add(a)
+
+        pattern_var = Var("?x")
+
+        assert egraph.instantiate(pattern_var, {pattern_var: a_id}) == a_id
+
+class TestFullEgraph:
+    def test_small(self) -> None:
+        egraph = Egraph()
+        assoc = (App("+", (Var("?a"), Var("?b"))), 
+                  App("+", (Var("?b"), Var("?a"))))
+
+        rewrites = (assoc,)
+
+        a = egraph.add(Node("a"))
+        b = egraph.add(Node("b"))
+        egraph.add(Node("+", (a, b)))
+        egraph.rewrites = rewrites
+        egraph.saturate()
+
+        assert len(set(egraph.map.values())) == 3
+        assert len(set(egraph.map.keys())) == 4
+
+
+    def test_full(self) -> None:
+        egraph = Egraph()
+        assoc = (App("+", (Var("?a"), Var("?b"))), 
+                  App("+", (Var("?b"), Var("?a"))))
+        commut =  (App("+", ((App("+", (Var("?a"), Var("?b")))), Var("?c"))), 
+                    App("+", (Var("?a"), (App("+", (Var("?b"), Var("?c")))))))
+
+        rewrites = (assoc, commut)
+
+        a = egraph.add(Node("a"))
+        b = egraph.add(Node("b"))
+        c = egraph.add(Node("c"))
+        d = egraph.add(Node("d"))
+        e = egraph.add(Node("e"))
+        f = egraph.add(Node("f"))
+        g = egraph.add(Node("g"))
+        egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (a, b))), c))), d))), e))), f))), g)))
+        egraph.rewrites = rewrites
+        egraph.saturate()
+        print(len(set(egraph.map.values())))
+        print(len(set(egraph.map.keys())))
+
+        assert len(set(egraph.map.values())) == 127
+        assert len(set(egraph.map.keys())) == 1939
+
+
+TestFullEgraph().test_full()
+        
+
+
+        
