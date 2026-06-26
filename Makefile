@@ -1,6 +1,6 @@
 .PHONY: mypy ruff lint test
 
-ruff: 
+ruff:
 	@echo "Running ruff..."
 	ruff check src tests
 

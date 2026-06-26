@@ -72,7 +72,7 @@ class EGraph:
                     if node.op_name != pattern.op_symbol or len(node.children) != len(pattern.children):
                         continue
                     todo = [subst]
-                    for node_child, pattern_child in zip(node.children, pattern.children):
+                    for node_child, pattern_child in zip(node.children, pattern.children, strict=True):
 
                         # flattens [self.ematch_rec(pattern_child, node_child, sub) for sub in todo]
                         new_todo = [item for sub in todo for item in self.ematch_rec(pattern_child, node_child, sub)]
@@ -80,7 +80,7 @@ class EGraph:
                     outputs += todo
                 return outputs
             case _:
-                assert False
+                raise TypeError(f"Invalid pattern: {pattern}")
 
     def ematch(self, pattern: Pattern, id: Id) -> list[dict[Var, Id]]:
         return self.ematch_rec(pattern, id, {})
