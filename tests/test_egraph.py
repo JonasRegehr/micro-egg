@@ -1,8 +1,10 @@
-from egraph import Egraph, Node, Var, App
+from common import App, Node, Var
+from egraph import EGraph
+
 
 class TestHashCons:
     def test_hash_cons_basic(self) -> None:
-        egraph = Egraph()
+        egraph = EGraph()
 
         a = Node("a")
         a_id1 = egraph.add(a)
@@ -13,10 +15,10 @@ class TestHashCons:
         b = Node("b")
         b_id = egraph.add(b)
 
-        assert a_id1 != b_id 
+        assert a_id1 != b_id
 
     def test_congruence_closure(self) -> None:
-        egraph = Egraph()
+        egraph = EGraph()
 
         a = Node("a")
         b = Node("b")
@@ -36,7 +38,7 @@ class TestHashCons:
         assert egraph.are_equiv(f_a_id, f_b_id)
 
     def test_instantiate(self) -> None:
-        egraph = Egraph()
+        egraph = EGraph()
 
         a = Node("a")
         a_id = egraph.add(a)
@@ -47,8 +49,8 @@ class TestHashCons:
 
 class TestFullEgraph:
     def test_small(self) -> None:
-        egraph = Egraph()
-        assoc = (App("+", (Var("?a"), Var("?b"))), 
+        egraph = EGraph()
+        assoc = (App("+", (Var("?a"), Var("?b"))),
                   App("+", (Var("?b"), Var("?a"))))
 
         rewrites = (assoc,)
@@ -59,18 +61,20 @@ class TestFullEgraph:
         egraph.rewrites = rewrites
         egraph.saturate()
 
-        assert len(set(egraph.map.values())) == 3
-        assert len(set(egraph.map.keys())) == 4
+        assert len(set(egraph.hashcons.values())) == 3
+        assert len(set(egraph.hashcons.keys())) == 4
 
 
     def test_full(self) -> None:
-        egraph = Egraph()
-        assoc = (App("+", (Var("?a"), Var("?b"))), 
+        assoc =  (App("+", ((App("+", (Var("?a"), Var("?b")))), Var("?c"))),
+                  App("+", (Var("?a"), (App("+", (Var("?b"), Var("?c")))))))
+
+        commut = (App("+", (Var("?a"), Var("?b"))),
                   App("+", (Var("?b"), Var("?a"))))
-        commut =  (App("+", ((App("+", (Var("?a"), Var("?b")))), Var("?c"))), 
-                    App("+", (Var("?a"), (App("+", (Var("?b"), Var("?c")))))))
 
         rewrites = (assoc, commut)
+
+        egraph = EGraph(rewrites=rewrites)
 
         a = egraph.add(Node("a"))
         b = egraph.add(Node("b"))
@@ -79,18 +83,10 @@ class TestFullEgraph:
         e = egraph.add(Node("e"))
         f = egraph.add(Node("f"))
         g = egraph.add(Node("g"))
+
         egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (a, b))), c))), d))), e))), f))), g)))
         egraph.rewrites = rewrites
         egraph.saturate()
-        print(len(set(egraph.map.values())))
-        print(len(set(egraph.map.keys())))
 
-        assert len(set(egraph.map.values())) == 127
-        assert len(set(egraph.map.keys())) == 1939
-
-
-TestFullEgraph().test_full()
-        
-
-
-        
+        assert len(set(egraph.hashcons.values())) == 127
+        assert len(set(egraph.hashcons.keys())) == 1939

@@ -3,11 +3,13 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "my_project"
+name = "micro_egg"
 version = "0.1.0"
+requires-python = ">=3.12"
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-
-[tool.mypy]
-mypy_path = "src"
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "ruff",
+]

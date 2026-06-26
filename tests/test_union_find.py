@@ -1,4 +1,5 @@
-from union_find import UnionFind 
+from union_find import UnionFind
+
 
 class TestUnionFind:
     def test_transitive(self) -> None:
@@ -29,7 +30,7 @@ class TestUnionFind:
         assert uf.union(a, c)
         assert uf.are_equal(a, b) and uf.are_equal(b, c) and uf.are_equal(c, d) and uf.are_equal(d, a)
 
-    def test_double_union_fails(self) -> None: 
+    def test_double_union_fails(self) -> None:
         uf = UnionFind()
         a = uf.makeset()
         b = uf.makeset()
