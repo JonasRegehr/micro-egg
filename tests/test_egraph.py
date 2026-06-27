@@ -47,11 +47,11 @@ class TestHashCons:
 
         assert egraph.instantiate(pattern_var, {pattern_var: a_id}) == a_id
 
+
 class TestFullEgraph:
     def test_small(self) -> None:
         egraph = EGraph()
-        assoc = (App("+", (Var("?a"), Var("?b"))),
-                  App("+", (Var("?b"), Var("?a"))))
+        assoc = (App("+", (Var("?a"), Var("?b"))), App("+", (Var("?b"), Var("?a"))))
 
         rewrites = (assoc,)
 
@@ -64,13 +64,13 @@ class TestFullEgraph:
         assert len(set(egraph.hashcons.values())) == 3
         assert len(set(egraph.hashcons.keys())) == 4
 
-
     def test_full(self) -> None:
-        assoc =  (App("+", ((App("+", (Var("?a"), Var("?b")))), Var("?c"))),
-                  App("+", (Var("?a"), (App("+", (Var("?b"), Var("?c")))))))
+        assoc = (
+            App("+", ((App("+", (Var("?a"), Var("?b")))), Var("?c"))),
+            App("+", (Var("?a"), (App("+", (Var("?b"), Var("?c")))))),
+        )
 
-        commut = (App("+", (Var("?a"), Var("?b"))),
-                  App("+", (Var("?b"), Var("?a"))))
+        commut = (App("+", (Var("?a"), Var("?b"))), App("+", (Var("?b"), Var("?a"))))
 
         rewrites = (assoc, commut)
 
@@ -84,7 +84,47 @@ class TestFullEgraph:
         f = egraph.add(Node("f"))
         g = egraph.add(Node("g"))
 
-        egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (egraph.add(Node("+", (a, b))), c))), d))), e))), f))), g)))
+        egraph.add(
+            Node(
+                "+",
+                (
+                    egraph.add(
+                        Node(
+                            "+",
+                            (
+                                egraph.add(
+                                    Node(
+                                        "+",
+                                        (
+                                            egraph.add(
+                                                Node(
+                                                    "+",
+                                                    (
+                                                        egraph.add(
+                                                            Node(
+                                                                "+",
+                                                                (
+                                                                    egraph.add(Node("+", (a, b))),
+                                                                    c,
+                                                                ),
+                                                            )
+                                                        ),
+                                                        d,
+                                                    ),
+                                                )
+                                            ),
+                                            e,
+                                        ),
+                                    )
+                                ),
+                                f,
+                            ),
+                        )
+                    ),
+                    g,
+                ),
+            )
+        )
         egraph.rewrites = rewrites
         egraph.saturate()
 

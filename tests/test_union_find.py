@@ -28,7 +28,9 @@ class TestUnionFind:
         assert uf.are_equal(c, d)
 
         assert uf.union(a, c)
-        assert uf.are_equal(a, b) and uf.are_equal(b, c) and uf.are_equal(c, d) and uf.are_equal(d, a)
+        assert (
+            uf.are_equal(a, b) and uf.are_equal(b, c) and uf.are_equal(c, d) and uf.are_equal(d, a)
+        )
 
     def test_double_union_fails(self) -> None:
         uf = UnionFind()
